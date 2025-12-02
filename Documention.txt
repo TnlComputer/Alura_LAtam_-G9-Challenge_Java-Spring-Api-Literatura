@@ -1,0 +1,279 @@
+Documention
+
+For long-term use, please run your own server with the code and installation instructions on GitHub.
+Lists of Books
+
+Lists of book information in the database are queried using the API at /books (e.g. gutendex.com/books). Book data will be returned in the format
+
+{
+  "count": <number>,
+  "next": <string or null>,
+  "previous": <string or null>,
+  "results": <array of Books>
+}
+
+where results is an array of 0-32 book objects, next and previous are URLs to the next and previous pages of results, and count in the total number of books for the query on all pages combined.
+
+By default, books are ordered by popularity, determined by their numbers of downloads from Project Gutenberg.
+
+Parameters can also be added to book-list queries in a typical URL format. For example, to get the first page of written by authors alive after 1899 and published in English or French, you can go to /books?author_year_start=1900&languages=en,fr
+
+You can find available query parameters below.
+author_year_start and author_year_end
+
+Use these to find books with at least one author alive in a given range of years. They must have positive or negative integer values. For example, /books?author_year_end=-499 gives books with authors alive before 500 BCE, and /books?author_year_start=1800&author_year_end=1899 gives books with authors alive in the 19th Century.
+copyright
+
+Use this to find books with a certain copyright status: true for books with existing copyrights, false for books in the public domain in the USA, or null for books with no available copyright information. These can be combined with commas. For example, /books?copyright=true,false gives books with available copyright information.
+ids
+
+Use this to list books with Project Gutenberg ID numbers in a given list of numbers. They must be comma-separated positive integers. For example, /books?ids=11,12,13 gives books with ID numbers 11, 12, and 13.
+languages
+
+Use this to find books in any of a list of languages. They must be comma-separated, two-character language codes. For example, /books?languages=en gives books in English, and /books?languages=fr,fi gives books in either French or Finnish or both.
+mime_type
+
+Use this to find books with a given MIME type. Gutendex gives every book with a MIME type starting with the value. For example, /books?mime_type=text%2F gives books with types text/html, text/plain; charset=us-ascii, etc.; and /books?mime_type=text%2Fhtml gives books with types text/html, text/html; charset=utf-8, etc.
+search
+
+Use this to search author names and book titles with given words. They must be separated by a space (i.e. %20 in URL-encoded format) and are case-insensitive. For example, /books?search=dickens%20great includes Great Expectations by Charles Dickens.
+sort
+
+Use this to sort books: ascending for Project Gutenberg ID numbers from lowest to highest, descending for IDs highest to lowest, or popular (the default) for most popular to least popular by number of downloads.
+topic
+
+Use this to search for a case-insensitive key-phrase in books' bookshelves or subjects. For example, /books?topic=children gives books on the "Children's Literature" bookshelf, with the subject "Sick children -- Fiction", and so on.
+Individual Books
+
+Individual books can be found at /books/<id>, where <id> is the book's Project Gutenberg ID number. Error responses will appear in this format:
+
+{
+  "detail": <string of error message>
+}
+
+API Objects
+
+Types of JSON objects served by Gutendex are given below.
+Book
+
+{
+  "id": <number of Project Gutenberg ID>,
+  "title": <string>,
+  "subjects": <array of strings>,
+  "authors": <array of Persons>,
+  "summaries": <array of strings>,
+  "translators": <array of Persons>,
+  "bookshelves": <array of strings>,
+  "languages": <array of strings>,
+  "copyright": <boolean or null>,
+  "media_type": <string>,
+  "formats": <Format>,
+  "download_count": <number>
+}
+
+Format
+
+{
+  <string of MIME-type>: <string of URL>,
+  ...
+}
+
+Person
+
+{
+  "birth_year": <number or null>,
+  "death_year": <number or null>,
+  "name": <string>
+}
+
+
+
+
+
+// Ejemplo de proyecto Spring Boot para consumir API de Gutenberg
+
+// Estructura de archivos sugerida:
+// src/main/java/com/example/gutenberg/
+//   ├── GutenbergApplication.java
+//   ├── controller/BookController.java
+//   ├── model/Book.java
+//   ├── model/Person.java
+//   ├── repository/BookRepository.java
+//   ├── service/BookService.java
+//   ├── service/impl/BookServiceImpl.java
+
+// ============================
+// GutenbergApplication.java
+// ============================
+package com.example.gutenberg;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class GutenbergApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(GutenbergApplication.class, args);
+    }
+}
+
+// ============================
+// model/Person.java
+// ============================
+package com.example.gutenberg.model;
+
+public class Person {
+    private Long id;
+    private String name;
+
+    // Getters y setters
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+}
+
+// ============================
+// model/Book.java
+// ============================
+package com.example.gutenberg.model;
+
+import java.util.List;
+import java.util.Map;
+
+public class Book {
+    private Long id;
+    private String title;
+    private List<String> subjects;
+    private List<Person> authors;
+    private List<String> summaries;
+    private List<Person> translators;
+    private List<String> bookshelves;
+    private List<String> languages;
+    private Boolean copyright;
+    private String media_type;
+    private Map<String, String> formats; // formato -> URL
+    private Integer download_count;
+
+    // Getters y setters
+    // ... (Generar todos los getters/setters)
+}
+
+// ============================
+// repository/BookRepository.java
+// ============================
+package com.example.gutenberg.repository;
+
+import com.example.gutenberg.model.Book;
+import org.springframework.stereotype.Repository;
+import java.util.*;
+
+@Repository
+public class BookRepository {
+
+    // Esto solo guarda en memoria. Si querés, lo cambiamos a JPA.
+    private final Map<Long, Book> database = new HashMap<>();
+
+    public List<Book> findAll() {
+        return new ArrayList<>(database.values());
+    }
+
+    public Book findById(Long id) {
+        return database.get(id);
+    }
+
+    public Book save(Book book) {
+        database.put(book.getId(), book);
+        return book;
+    }
+}
+
+// ============================
+// service/BookService.java
+// ============================
+package com.example.gutenberg.service;
+
+import com.example.gutenberg.model.Book;
+import java.util.List;
+
+public interface BookService {
+    List<Book> getAll();
+    Book getById(Long id);
+    Book fetchFromGutenbergAPI(Long id);
+}
+
+// ============================
+// service/impl/BookServiceImpl.java
+// ============================
+package com.example.gutenberg.service.impl;
+
+import com.example.gutenberg.model.Book;
+import com.example.gutenberg.repository.BookRepository;
+import com.example.gutenberg.service.BookService;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+import java.util.List;
+
+@Service
+public class BookServiceImpl implements BookService {
+
+    private final BookRepository repository;
+    private final RestTemplate restTemplate = new RestTemplate();
+
+    public BookServiceImpl(BookRepository repository) {
+        this.repository = repository;
+    }
+
+    @Override
+    public List<Book> getAll() { return repository.findAll(); }
+
+    @Override
+    public Book getById(Long id) { return repository.findById(id); }
+
+    @Override
+    public Book fetchFromGutenbergAPI(Long id) {
+        String url = "https://gutendex.com/books/" + id + "/";
+        Book book = restTemplate.getForObject(url, Book.class);
+        if (book != null) {
+            repository.save(book);
+        }
+        return book;
+    }
+}
+
+// ============================
+// controller/BookController.java
+// ============================
+package com.example.gutenberg.controller;
+
+import com.example.gutenberg.model.Book;
+import com.example.gutenberg.service.BookService;
+import org.springframework.web.bind.annotation.*;
+import java.util.List;
+
+@RestController
+@RequestMapping("/books")
+public class BookController {
+
+    private final BookService service;
+
+    public BookController(BookService service) {
+        this.service = service;
+    }
+
+    @GetMapping
+    public List<Book> getAll() {
+        return service.getAll();
+    }
+
+    @GetMapping("/{id}")
+    public Book getById(@PathVariable Long id) {
+        return service.getById(id);
+    }
+
+    @GetMapping("/fetch/{id}")
+    public Book fetchBook(@PathVariable Long id) {
+        return service.fetchFromGutenbergAPI(id);
+    }
+}
