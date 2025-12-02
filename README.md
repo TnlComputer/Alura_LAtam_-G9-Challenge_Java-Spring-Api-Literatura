@@ -4,6 +4,9 @@
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5-green)](https://spring.io/projects/spring-boot)  
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow)](LICENSE)
 
+<img width="409" height="410" alt="imagen" src="https://github.com/user-attachments/assets/1badeefe-cd7b-4b68-99e9-e1f3322d02e6" />
+
+
 ## 🔎 Descripción
 
 Este proyecto es una API + consola de línea de comandos en **Java + Spring Boot** para gestionar una colección de libros — como parte del desafío del curso de AluraLatam.  
