@@ -27,6 +27,9 @@ public class Main {
                     3 - Listar autores registrados
                     4 - Listar autores vivos en un determinado año
                     5 - Listar libros por idioma
+                    6 - Listar los 10 libros mas descargados
+                    7 - Buscar autor por nombre
+                    8 - Estadísticas
                     0 - Salir
                     ===============================
                     """);
@@ -62,6 +65,17 @@ public class Main {
                     System.out.print("Ingrese el idioma (ej: en, es, fr): ");
                     String idioma = teclado.nextLine();
                     bookService.printBooksByIdioma(idioma);
+                    break;
+                case 6:
+                    bookService.printTop10LibrosMasDescargados();
+                    break;
+                case 7:
+                    System.out.print("Ingrese el nombre del autor: ");
+                    String nombreAutor = teclado.nextLine();
+                    bookService.buscarAutorPorNombre(nombreAutor);
+                    break;
+                case 8:
+                    bookService.mostrarEstadisticas();
                     break;
                 case 0:
                     System.out.println("👋 Saliendo...");

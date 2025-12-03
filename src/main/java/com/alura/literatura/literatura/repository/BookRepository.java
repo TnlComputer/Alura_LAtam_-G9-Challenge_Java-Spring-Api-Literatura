@@ -30,5 +30,17 @@ public interface BookRepository extends JpaRepository<Book, Long> {
     List<Person> findAutoresVivosEn(@Param("year") int year);
 
     List<Book> findByLanguagesContainingIgnoreCase(String language);
+
+    // 6 - Top 10 por descargas
+    List<Book> findTop10ByOrderByDownloadCountDesc();
+
+    // 7 - Buscar autor por nombre (busca dentro del Set<Person>)
+    @Query("SELECT b FROM Book b JOIN b.authors a WHERE LOWER(a.name) LIKE LOWER(CONCAT('%', :nombre, '%'))")
+    List<Book> findByAuthorNameContaining(String nombre);
+
+    // 5 - Por idioma (esto ya lo tenías, pero por si falta)
+    @Query("SELECT b FROM Book b JOIN b.languages lang WHERE lang = :idioma")
+    List<Book> findByLanguage(String idioma);
+
 }
 

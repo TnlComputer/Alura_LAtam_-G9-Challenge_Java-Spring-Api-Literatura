@@ -75,7 +75,7 @@ public class BookService {
                 book.getCopyright(),
                 book.getMedia_type(),
                 book.getFormats(),
-                book.getDownload_count()
+                book.getDownloadCount()
         );
     }
 
@@ -198,7 +198,74 @@ public class BookService {
         System.out.println("Título: " + book.getTitle());
         System.out.println("Autores: " + authors);
         System.out.println("Idiomas: " + langs);
-        System.out.println("Número de descargas: " + book.getDownload_count());
+        System.out.println("Número de descargas: " + book.getDownloadCount());
         System.out.println("------------------");
     }
+
+    // EXTRAS del challenge
+    public void printTop10LibrosMasDescargados() {
+        List<Book> top10 = repository.findTop10ByOrderByDownloadCountDesc();
+
+        if (top10.isEmpty()) {
+            System.out.println("❌ No hay libros registrados.");
+            return;
+        }
+
+        System.out.println("\n🔥 Top 10 libros más descargados:");
+        int index = 1;
+        for (Book book : top10) {
+            System.out.printf("%2d. 📘 %s (Descargas: %d)\n",
+                    index++,
+                    book.getTitle(),
+                    book.getDownloadCount());
+        }
+
+        System.out.println();
+    }
+
+    public void buscarAutorPorNombre(String nombre) {
+        List<Book> libros = repository.findByAuthorNameContaining(nombre);
+
+        if (libros.isEmpty()) {
+            System.out.println("❌ No se encontraron autores con ese nombre.");
+            return;
+        }
+
+        // Obtener autores reales sin repetir
+        Set<Person> autoresEncontrados = new HashSet<>();
+        libros.forEach(b -> autoresEncontrados.addAll(b.getAuthors()));
+
+        System.out.println("\n👤 Autores encontrados:");
+        autoresEncontrados.forEach(a -> System.out.println(" - " + a.getName()));
+
+        System.out.println("\n📚 Libros asociados:");
+        libros.forEach(b -> System.out.println(" - " + b.getTitle() + "\n"));
+    }
+
+
+    // ESTADISTICAS
+    public void mostrarEstadisticas() {
+        long totalLibros = repository.count();
+
+        long totalAutores = repository.findAll().stream()
+                .flatMap(b -> b.getAuthors().stream())
+                .count();
+
+        Book masDescargado = repository.findTop10ByOrderByDownloadCountDesc()
+                .stream()
+                .findFirst()
+                .orElse(null);
+
+        System.out.println("\n📊 ESTADÍSTICAS GENERALES");
+        System.out.println("------------------------------");
+        System.out.println("📚 Total de libros: " + totalLibros);
+        System.out.println("👤 Total de autores: " + totalAutores);
+
+        if (masDescargado != null) {
+            System.out.println("🔥 Libro más descargado:");
+            System.out.println("   " + masDescargado.getTitle() +
+                    " (" + masDescargado.getDownloadCount() + " descargas) \n");
+        }
+    }
+
 }

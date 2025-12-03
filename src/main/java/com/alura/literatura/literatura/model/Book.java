@@ -17,8 +17,11 @@ public class Book {
     @ElementCollection
     private List<String> subjects;
 
-    @OneToMany(cascade = CascadeType.ALL)
-    private Set<Person> authors; // Cambiado a Set para evitar MultipleBagFetchException
+//    @OneToMany(cascade = CascadeType.ALL)
+//    private Set<Person> authors;
+
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private Set<Person> authors;
 
     @ElementCollection
     @CollectionTable(name = "book_summaries", joinColumns = @JoinColumn(name = "book_id"))
@@ -41,7 +44,9 @@ public class Book {
     @ElementCollection
     private Map<String, String> formats;
 
-    private Integer download_count;
+    @Column(name = "download_count")
+    private Integer downloadCount;
+
 
     public Book() {}
 
@@ -73,7 +78,8 @@ public class Book {
         this.copyright = datos.copyright();
         this.media_type = datos.media_type();
         this.formats = datos.formats();
-        this.download_count = datos.download_count();
+        this.downloadCount = datos.downloadCount();
+
     }
 
     @Override
@@ -82,7 +88,7 @@ public class Book {
                 "Book[id=%d, title='%s', downloads=%d, language(s)=%s, authorsCount=%d]",
                 id,
                 title,
-                download_count,
+                downloadCount,
                 (languages != null ? String.join(", ", languages) : "Sin idioma"),
                 (authors != null ? authors.size() : 0)
         );
@@ -123,6 +129,6 @@ public class Book {
     public Map<String, String> getFormats() { return formats; }
     public void setFormats(Map<String, String> formats) { this.formats = formats; }
 
-    public Integer getDownload_count() { return download_count; }
-    public void setDownload_count(Integer download_count) { this.download_count = download_count; }
+    public Integer getDownloadCount() { return downloadCount; }
+    public void setDownloadCount(Integer downloadCount) { this.downloadCount = downloadCount; }
 }

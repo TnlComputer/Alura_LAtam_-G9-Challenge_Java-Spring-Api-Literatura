@@ -19,7 +19,7 @@ public record DatosLibros(
         @JsonAlias("copyright") Boolean copyright,
         @JsonAlias("media_type") String media_type,
         @JsonAlias("formats") Map<String, String> formats,
-        @JsonAlias("download_count") Integer download_count
+        @JsonAlias("download_count") Integer downloadCount
 ) {}
 
 
